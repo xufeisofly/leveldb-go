@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/xufeisofly/leveldb-go/leveldb"
+	"github.com/xufeisofly/leveldb-go/util"
 )
 
 type testComparator struct {
@@ -56,18 +57,18 @@ func TestSkiplist_InsertAndLookup(t *testing.T) {
 		if _, ok := keySet[keyInt]; !ok {
 			keySet[keyInt] = struct{}{}
 			keyArr = append(keyArr, keyInt)
-			list.Insert(leveldb.Uint64ToByteArr(uint64(keyInt)))
+			list.Insert(util.EncodeUvarint(uint64(keyInt)))
 		}
 	}
 
 	// sort keyArr by cmp
 	sort.Slice(keyArr, func(i, j int) bool {
-		return cmp.Compare(leveldb.Uint64ToByteArr(uint64(keyArr[i])),
-			leveldb.Uint64ToByteArr(uint64(keyArr[j]))) < 0
+		return cmp.Compare(util.EncodeUvarint(uint64(keyArr[i])),
+			util.EncodeUvarint(uint64(keyArr[j]))) < 0
 	})
 
 	for i := begin; i < R; i++ {
-		key := leveldb.Uint64ToByteArr(uint64(i))
+		key := util.EncodeUvarint(uint64(i))
 		_, ok := keySet[i]
 		if list.Contains(key) {
 			assert.True(t, ok)
@@ -80,24 +81,24 @@ func TestSkiplist_InsertAndLookup(t *testing.T) {
 	iter := leveldb.NewSkiplistIterator(list)
 	assert.True(t, !iter.Valid())
 
-	iter.Seek(leveldb.Uint64ToByteArr(0))
+	iter.Seek(util.EncodeUvarint(0))
 	assert.True(t, iter.Valid())
-	assert.Equal(t, leveldb.Uint64ToByteArr(0), iter.Key())
+	assert.Equal(t, util.EncodeUvarint(0), iter.Key())
 
 	iter.SeekToFirst()
 	assert.True(t, iter.Valid())
-	assert.Equal(t, leveldb.Uint64ToByteArr(uint64(keyArr[0])), iter.Key())
+	assert.Equal(t, util.EncodeUvarint(uint64(keyArr[0])), iter.Key())
 
 	iter.SeekToLast()
 	assert.True(t, iter.Valid())
-	assert.Equal(t, leveldb.Uint64ToByteArr(uint64(keyArr[len(keyArr)-1])), iter.Key())
+	assert.Equal(t, util.EncodeUvarint(uint64(keyArr[len(keyArr)-1])), iter.Key())
 
 	// Forward iteration test
 	iter = leveldb.NewSkiplistIterator(list)
 	iter.SeekToFirst()
 
 	for i := 0; i < len(keyArr); i++ {
-		assert.Equal(t, iter.Key(), leveldb.Uint64ToByteArr(uint64(keyArr[i])))
+		assert.Equal(t, iter.Key(), util.EncodeUvarint(uint64(keyArr[i])))
 		iter.Next()
 	}
 
@@ -106,7 +107,7 @@ func TestSkiplist_InsertAndLookup(t *testing.T) {
 	iter.SeekToLast()
 
 	for i := len(keyArr) - 1; i >= 0; i-- {
-		assert.Equal(t, iter.Key(), leveldb.Uint64ToByteArr(uint64(keyArr[i])))
+		assert.Equal(t, iter.Key(), util.EncodeUvarint(uint64(keyArr[i])))
 		iter.Prev()
 	}
 }

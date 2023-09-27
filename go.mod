@@ -2,7 +2,10 @@ module github.com/xufeisofly/leveldb-go
 
 go 1.18
 
-require github.com/stretchr/testify v1.8.4
+require (
+	github.com/spf13/cast v1.5.1
+	github.com/stretchr/testify v1.8.4
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

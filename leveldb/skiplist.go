@@ -85,10 +85,7 @@ func (sl *skiplist) Insert(key []byte) {
 	prev := make([]*node, kMaxHeight)
 	x := sl.findGreatorOrEqual(key, &prev)
 
-	if x == nil {
-		panic("x not found")
-	}
-	if sl.Equal(key, x.key) {
+	if x != nil && sl.Equal(key, x.key) {
 		panic("do not allow duplicate insertion")
 	}
 

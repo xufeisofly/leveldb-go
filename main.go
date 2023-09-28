@@ -9,6 +9,6 @@ import (
 func main() {
 	num := uint64(36824)
 	bs := util.EncodeUvarint(num)
-	fmt.Println(bs)
+	fmt.Println(append(bs, util.EncodeUvarint(999)...))
 	fmt.Println(util.DecodeUvarint(bs))
 }

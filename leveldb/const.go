@@ -1,5 +1,7 @@
 package leveldb
 
+import "errors"
+
 type SequenceNumber uint64
 
 // ValueType encoded as the last component of internal keys
@@ -11,3 +13,7 @@ const (
 )
 
 const ValueType_ForSeek = ValueType_Value
+
+var (
+	ErrNotFound = errors.New("not found")
+)

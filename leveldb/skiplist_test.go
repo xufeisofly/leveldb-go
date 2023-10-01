@@ -1,7 +1,6 @@
 package leveldb_test
 
 import (
-	"bytes"
 	"math/rand"
 	"sort"
 	"testing"
@@ -12,21 +11,8 @@ import (
 	"github.com/xufeisofly/leveldb-go/util"
 )
 
-type testComparator struct {
-}
-
-var _ leveldb.Comparator = (*testComparator)(nil)
-
-func (c *testComparator) Compare(a, b []byte) int8 {
-	return int8(bytes.Compare(a, b))
-}
-
-func NewTestComparator() leveldb.Comparator {
-	return &testComparator{}
-}
-
 func TestSkiplist_Empty(t *testing.T) {
-	testCmp := NewTestComparator()
+	testCmp := leveldb.NewBytewiseComparator()
 	list := leveldb.NewSkiplist(testCmp)
 	assert.True(t, !list.Contains([]byte("10")))
 
@@ -46,7 +32,7 @@ func TestSkiplist_InsertAndLookup(t *testing.T) {
 
 	keySet := make(map[int]struct{}, 0)
 	keyArr := make([]int, 0)
-	cmp := NewTestComparator()
+	cmp := leveldb.NewBytewiseComparator()
 	list := leveldb.NewSkiplist(cmp)
 
 	begin := 0

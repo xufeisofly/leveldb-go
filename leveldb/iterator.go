@@ -16,7 +16,5 @@ type Iterator interface {
 	// Return the key for the current entry
 	Key() []byte
 	// Return the value for the current entry
-	Value()
-	// If an error has occurred, return it. Else return an ok status
-	Status()
+	Value() []byte
 }

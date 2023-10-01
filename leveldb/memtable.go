@@ -74,3 +74,56 @@ func (m *MemTable) Get(key *LookupKey) ([]byte, error) {
 
 	return nil, Error(Code_NotFound, "")
 }
+
+// memTableIterator
+type memTableIterator struct {
+	tableIter *skiplistIterator
+	tmp       []byte
+}
+
+var _ Iterator = (*memTableIterator)(nil)
+
+func NewMemTableIterator(table *skiplist) *memTableIterator {
+	tableIter := NewSkiplistIterator(table)
+	return &memTableIterator{
+		tableIter: tableIter,
+		tmp:       nil,
+	}
+}
+
+func (mi *memTableIterator) Valid() bool {
+	return mi.tableIter.Valid()
+}
+
+func (mi *memTableIterator) SeekToFirst() {
+	mi.tableIter.SeekToFirst()
+}
+
+func (mi *memTableIterator) SeekToLast() {
+	mi.tableIter.SeekToLast()
+}
+
+func (mi *memTableIterator) Seek(target []byte) {
+	// encode target size in front of target data before seeking it in the skiplist
+	mi.Seek(append(util.EncodeUvarint(uint64(len(target))), target...))
+}
+
+func (mi *memTableIterator) Next() {
+	mi.Next()
+}
+
+func (mi *memTableIterator) Prev() {
+	mi.Prev()
+}
+
+func (mi *memTableIterator) Key() []byte {
+	key, _, _ := util.GetVarLengthPrefixedBytes(mi.Key())
+	return key
+
+}
+
+func (mi *memTableIterator) Value() []byte {
+	key, l, lSize := util.GetVarLengthPrefixedBytes(mi.Key())
+	value, _, _ := util.GetVarLengthPrefixedBytes(key[int(l)+lSize:])
+	return value
+}

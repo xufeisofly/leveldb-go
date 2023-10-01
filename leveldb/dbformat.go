@@ -8,7 +8,7 @@ type LookupKey struct {
 }
 
 const TagSize = 8
-const kMaxSequenceNumber SequenceNumber = ((1 << 56) - 1)
+const KMaxSequenceNumber SequenceNumber = ((1 << 56) - 1)
 
 func NewLookupKey(userKey []byte, seq SequenceNumber) *LookupKey {
 	usize := len(userKey)
@@ -37,7 +37,7 @@ func (lk *LookupKey) UserKey() []byte {
 // PackSequenceAndType pack sequence number with type to a 8 bytes int
 // sequence number(7 bytes) + value type(1 byte)
 func PackSequenceAndType(seq SequenceNumber, t ValueType) uint64 {
-	if seq > kMaxSequenceNumber {
+	if seq > KMaxSequenceNumber {
 		panic("sequence number not valid")
 	}
 	if t > ValueType_ForSeek {
@@ -93,4 +93,13 @@ func ParseInternalKey(ikey []byte) (*ParsedInternalKey, error) {
 		Sequence: seq,
 		Type:     t,
 	}, nil
+}
+
+// ExtractUserKey extracts user key from internal key
+func ExtractUserKey(ikey []byte) []byte {
+	n := len(ikey)
+	if n < TagSize {
+		panic("internal key size < 8")
+	}
+	return ikey[:n-TagSize]
 }

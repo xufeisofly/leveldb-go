@@ -17,10 +17,7 @@ func TestLookupKey(t *testing.T) {
 	assert.Equal(t, userKey, lkey.InternalKey()[:len(lkey.InternalKey())-leveldb.TagSize])
 }
 
-func TestInternalKey_DumpAndParse(t *testing.T) {
-	ukey := []byte("abc")
-	seq := leveldb.SequenceNumber(99)
-	valueType := leveldb.ValueType_Value
+func testKey(t *testing.T, ukey []byte, seq leveldb.SequenceNumber, valueType leveldb.ValueType) {
 	parsedIKey := leveldb.NewParsedInternalKey(ukey, seq, valueType)
 
 	ikeyBytes := leveldb.DumpInternalKey(parsedIKey)
@@ -29,4 +26,29 @@ func TestInternalKey_DumpAndParse(t *testing.T) {
 	assert.Equal(t, parsedIKey.UserKey, ret.UserKey)
 	assert.Equal(t, parsedIKey.Sequence, ret.Sequence)
 	assert.Equal(t, parsedIKey.Type, ret.Type)
+}
+
+func TestInternalKey_DumpAndParse(t *testing.T) {
+	testKeys := []string{"", "k", "hello", "longggggggggggggggggggggg"}
+	testSeqs := []leveldb.SequenceNumber{
+		1,
+		2,
+		3,
+		(1 << 8) - 1,
+		(1 << 8),
+		(1 << 8) + 1,
+		(1 << 16) - 1,
+		(1 << 16),
+		(1 << 16) + 1,
+		(1 << 32) - 1,
+		(1 << 32),
+		(1 << 32) + 1,
+	}
+
+	for _, ukey := range testKeys {
+		for _, seq := range testSeqs {
+			testKey(t, []byte(ukey), seq, leveldb.ValueType_Value)
+			testKey(t, []byte(ukey), seq, leveldb.ValueType_Deletion)
+		}
+	}
 }

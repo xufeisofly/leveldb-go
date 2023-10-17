@@ -1,7 +1,5 @@
 package leveldb
 
-import "errors"
-
 type SequenceNumber uint64
 
 // ValueType encoded as the last component of internal keys
@@ -14,6 +12,15 @@ const (
 
 const ValueType_ForSeek = ValueType_Value
 
-var (
-	ErrNotFound = errors.New("not found")
+type CompressionType int
+
+const (
+	CompressionType_NoCompression CompressionType = 0x0
+	CompressionType_Snappy        CompressionType = 0x1
+	CompressionType_Zstd          CompressionType = 0x2
+)
+
+const (
+	Uint64Size = 8
+	Uint32Size = 4
 )

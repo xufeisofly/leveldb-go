@@ -15,7 +15,7 @@ func NewMemTable(comparator Comparator) *MemTable {
 }
 
 func (m *MemTable) NewIterator() Iterator {
-	return nil
+	return NewMemTableIterator(&m.table)
 }
 
 // Add puts key value into memtable
@@ -119,7 +119,6 @@ func (mi *memTableIterator) Prev() {
 func (mi *memTableIterator) Key() []byte {
 	key, _, _ := util.GetVarLengthPrefixedBytes(mi.Key())
 	return key
-
 }
 
 func (mi *memTableIterator) Value() []byte {

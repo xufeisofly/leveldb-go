@@ -49,7 +49,14 @@ func (b *block) Size() int {
 }
 
 func (b *block) NewIterator(comp Comparator) Iterator {
-	return nil
+	if b.size < Uint64Size {
+		return nil
+	}
+	numRestarts := b.NumRestarts()
+	if numRestarts == 0 {
+		return nil
+	}
+	return NewBlockIterator(comp, b.data, b.restartOffset, numRestarts)
 }
 
 type blockIter struct {
@@ -66,6 +73,21 @@ type blockIter struct {
 }
 
 var _ Iterator = (*blockIter)(nil)
+
+func NewBlockIterator(comp Comparator, data []byte, restarts, numRestarts uint64) *blockIter {
+	return &blockIter{
+		comparator:  comp,
+		data:        data,
+		restarts:    restarts,
+		numRestarts: numRestarts,
+
+		current:      restarts,
+		restartIndex: numRestarts,
+		key:          []byte{},
+		value:        []byte{},
+		valueOffset:  0,
+	}
+}
 
 func (biter *blockIter) compare(a, b []byte) int8 {
 	return biter.comparator.Compare(a, b)

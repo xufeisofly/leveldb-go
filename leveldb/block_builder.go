@@ -16,16 +16,16 @@ import (
 // immediately following the corresponding key.
 //
 // An entry for a particular key-value pair has the form:
-//     shared_bytes: varint32
-//     unshared_bytes: varint32
-//     value_length: varint32
+//     shared_bytes: varint64
+//     unshared_bytes: varint64
+//     value_length: varint64
 //     key_delta: char[unshared_bytes]
 //     value: char[value_length]
 // shared_bytes == 0 for restart points.
 //
 // The trailer of the block has the form:
-//     restarts: uint32[num_restarts]
-//     num_restarts: uint32
+//     restarts: uint64[num_restarts]
+//     num_restarts: uint64
 // restarts[i] contains the offset within the block of the ith restart point.
 
 type blockBuilder struct {

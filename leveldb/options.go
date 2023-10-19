@@ -94,7 +94,7 @@ type Options struct {
 	FilterPolicy *FilterPolicy
 }
 
-var DefaultOptions = Options{
+var DefaultOptions = &Options{
 	Comparator:      NewBytewiseComparator(),
 	CreateIfMissing: false,
 	ErrorIfExsits:   false,

@@ -3,8 +3,6 @@ package leveldb
 import "github.com/xufeisofly/leveldb-go/util"
 
 type block struct {
-	iter *blockIter
-
 	data          []byte
 	size          int
 	restartOffset uint64 // offset in data of restart array
@@ -50,11 +48,11 @@ func (b *block) Size() int {
 
 func (b *block) NewIterator(comp Comparator) Iterator {
 	if b.size < Uint64Size {
-		return nil
+		return NewEmptyIterator()
 	}
 	numRestarts := b.NumRestarts()
 	if numRestarts == 0 {
-		return nil
+		return NewEmptyIterator()
 	}
 	return NewBlockIterator(comp, b.data, b.restartOffset, numRestarts)
 }

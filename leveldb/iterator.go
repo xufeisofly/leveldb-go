@@ -18,3 +18,26 @@ type Iterator interface {
 	// Return the value for the current entry
 	Value() []byte
 }
+
+type emptyIterator struct{}
+
+func NewEmptyIterator() *emptyIterator {
+	return &emptyIterator{}
+}
+
+var _ Iterator = (*emptyIterator)(nil)
+
+func (i *emptyIterator) Valid() bool {
+	return false
+}
+func (i *emptyIterator) SeekToFirst()       {}
+func (i *emptyIterator) SeekToLast()        {}
+func (i *emptyIterator) Seek(target []byte) {}
+func (i *emptyIterator) Next()              {}
+func (i *emptyIterator) Prev()              {}
+func (i *emptyIterator) Key() []byte {
+	panic("invalid")
+}
+func (i *emptyIterator) Value() []byte {
+	panic("invalid")
+}

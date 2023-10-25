@@ -1,6 +1,8 @@
 package leveldb
 
-import "github.com/xufeisofly/leveldb-go/util"
+import (
+	"github.com/xufeisofly/leveldb-go/util"
+)
 
 // A FilterBlockBuilder is used to construct all of the filters for a
 // particular Table.  It generates a single string which is stored as
@@ -93,7 +95,7 @@ func NewFilterBlockReader(policy FilterPolicy, contents []byte) *filterBlockRead
 		return nil
 	}
 	data := contents[:lastWord]
-	offset := data[lastWord : n-9]
+	offset := data[lastWord : n-1]
 	num := (n - 9 - int(lastWord)) / 8 // num of filters
 
 	return &filterBlockReader{

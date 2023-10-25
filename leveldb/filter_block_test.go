@@ -36,8 +36,35 @@ func (f *testHashFilterPolicy) KeyMayMatch(key []byte, filter []byte) bool {
 }
 
 func TestFilterBlock_EmptyBuilder(t *testing.T) {
-	builder := leveldb.NewFilterBlockBuilder(&testHashFilterPolicy{})
+	policy := &testHashFilterPolicy{}
+	builder := leveldb.NewFilterBlockBuilder(policy)
 	block := builder.Finish()
 
 	assert.Equal(t, "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x0b", util.EscapeString(block))
+
+	reader := leveldb.NewFilterBlockReader(policy, block)
+	assert.True(t, reader.KeyMayMatch(0, []byte("foo")))
+	assert.True(t, reader.KeyMayMatch(100000, []byte("foo")))
+}
+
+func TestFilterBlock_SingleChunk(t *testing.T) {
+	policy := &testHashFilterPolicy{}
+	builder := leveldb.NewFilterBlockBuilder(policy)
+	builder.StartBlock(100)
+	builder.AddKey([]byte("foo"))
+	builder.AddKey([]byte("bar"))
+	builder.AddKey([]byte("box"))
+	builder.StartBlock(200)
+	builder.AddKey([]byte("box"))
+	builder.StartBlock(300)
+	builder.AddKey([]byte("hello"))
+	block := builder.Finish()
+	reader := leveldb.NewFilterBlockReader(policy, block)
+	assert.True(t, reader.KeyMayMatch(100, []byte("foo")))
+	assert.True(t, reader.KeyMayMatch(100, []byte("bar")))
+	assert.True(t, reader.KeyMayMatch(100, []byte("box")))
+	assert.True(t, reader.KeyMayMatch(100, []byte("hello")))
+	assert.True(t, reader.KeyMayMatch(100, []byte("foo")))
+	assert.True(t, !reader.KeyMayMatch(100, []byte("missing")))
+	assert.True(t, !reader.KeyMayMatch(100, []byte("other")))
 }

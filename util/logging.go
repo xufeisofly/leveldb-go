@@ -2,6 +2,7 @@ package util
 
 import "fmt"
 
+// EscapeString convert byte array to string
 func EscapeString(v []byte) string {
 	var str string
 	AppendEscapedStringTo(&str, v)

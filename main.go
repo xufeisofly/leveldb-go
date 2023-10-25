@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	num := uint64(36824)
-	bs := util.EncodeUvarint(num)
-	fmt.Println(append(bs, util.EncodeUvarint(999)...))
-	fmt.Println(util.DecodeUvarint(bs))
+	var str string
+	util.AppendEscapedStringTo(&str, []byte{0, 0})
+	fmt.Println(str)
 }

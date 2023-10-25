@@ -114,8 +114,10 @@ func (fr *filterBlockReader) KeyMayMatch(blockOffset uint64, key []byte) bool {
 			filter := fr.data[start:limit]
 			return fr.policy.KeyMayMatch(key, filter)
 		} else if start == limit {
+			// Empty filters do not match any keys
 			return false
 		}
 	}
+	// Errors are treated as potential matches
 	return true
 }

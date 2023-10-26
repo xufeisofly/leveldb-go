@@ -32,6 +32,17 @@ func PutUvarint(buf *[]byte, v uint64) {
 	*buf = append(*buf, EncodeUvarint(v)...)
 }
 
+// GetUvarint decodes byte array to varuint64 and puts the result into v
+func GetUvarint(input *[]byte, v *uint64) bool {
+	r, num := DecodeUvarint(*input)
+	if num == 0 {
+		return false
+	}
+	*input = (*input)[num:]
+	*v = r
+	return true
+}
+
 // GetVarLengthPrefixedBytes gets data from |size(var) + data| structure
 func GetVarLengthPrefixedBytes(bs []byte) ([]byte, uint64, int) {
 	l, lsize := DecodeUvarint(bs)
@@ -44,13 +55,28 @@ func EncodeUint64Fixed(v uint64) []byte {
 	return bs
 }
 
+func EncodeUint32Fixed(v uint32) []byte {
+	bs := make([]byte, unsafe.Sizeof(v))
+	binary.BigEndian.PutUint32(bs, v)
+	return bs
+}
+
 func DecodeUint64Fixed(bs []byte) uint64 {
 	return binary.BigEndian.Uint64(bs)
+}
+
+func DecodeUint32Fixed(bs []byte) uint32 {
+	return binary.BigEndian.Uint32(bs)
 }
 
 // PutUint64Fixed puts encoded fixed uint64 into buffer
 func PutUint64Fixed(buf *[]byte, v uint64) {
 	*buf = append(*buf, EncodeUint64Fixed(v)...)
+}
+
+// PutUint32Fixed puts encoded fixed uint32 into buffer
+func PutUint32Fixed(buf *[]byte, v uint32) {
+	*buf = append(*buf, EncodeUint32Fixed(v)...)
 }
 
 type Signed interface {

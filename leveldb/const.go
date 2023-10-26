@@ -12,7 +12,7 @@ const (
 
 const ValueType_ForSeek = ValueType_Value
 
-type CompressionType int
+type CompressionType int8
 
 const (
 	CompressionType_NoCompression CompressionType = 0x0

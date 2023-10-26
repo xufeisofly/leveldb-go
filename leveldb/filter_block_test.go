@@ -68,3 +68,52 @@ func TestFilterBlock_SingleChunk(t *testing.T) {
 	assert.True(t, !reader.KeyMayMatch(100, []byte("missing")))
 	assert.True(t, !reader.KeyMayMatch(100, []byte("other")))
 }
+
+func TestFilterBlock_MultiChunk(t *testing.T) {
+	policy := &testHashFilterPolicy{}
+	builder := leveldb.NewFilterBlockBuilder(policy)
+
+	// first filter
+	builder.StartBlock(0)
+	builder.AddKey([]byte("foo"))
+	builder.StartBlock(2000)
+	builder.AddKey([]byte("bar"))
+
+	// second filter
+	builder.StartBlock(3100)
+	builder.AddKey([]byte("box"))
+
+	// third filter is empty
+
+	// last filter
+	builder.StartBlock(9000)
+	builder.AddKey([]byte("box"))
+	builder.AddKey([]byte("hello"))
+
+	block := builder.Finish()
+	reader := leveldb.NewFilterBlockReader(policy, block)
+
+	// check first filter
+	assert.True(t, reader.KeyMayMatch(0, []byte("foo")))
+	assert.True(t, reader.KeyMayMatch(2000, []byte("bar")))
+	assert.True(t, !reader.KeyMayMatch(0, []byte("box")))
+	assert.True(t, !reader.KeyMayMatch(0, []byte("hello")))
+
+	// check second filter
+	assert.True(t, reader.KeyMayMatch(3100, []byte("box")))
+	assert.True(t, !reader.KeyMayMatch(3100, []byte("foo")))
+	assert.True(t, !reader.KeyMayMatch(3100, []byte("bar")))
+	assert.True(t, !reader.KeyMayMatch(3100, []byte("hello")))
+
+	// check third filter (empty)
+	assert.True(t, !reader.KeyMayMatch(4100, []byte("foo")))
+	assert.True(t, !reader.KeyMayMatch(4100, []byte("bar")))
+	assert.True(t, !reader.KeyMayMatch(4100, []byte("box")))
+	assert.True(t, !reader.KeyMayMatch(4100, []byte("hello")))
+
+	// check last filter
+	assert.True(t, reader.KeyMayMatch(9000, []byte("box")))
+	assert.True(t, reader.KeyMayMatch(9000, []byte("hello")))
+	assert.True(t, !reader.KeyMayMatch(9000, []byte("foo")))
+	assert.True(t, !reader.KeyMayMatch(9000, []byte("bar")))
+}

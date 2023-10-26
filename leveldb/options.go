@@ -3,7 +3,6 @@ package leveldb
 type Env struct{}
 type Logger struct{}
 type BlockCache struct{}
-type FilterPolicy struct{}
 
 type Options struct {
 	Comparator Comparator
@@ -91,7 +90,7 @@ type Options struct {
 	// If non-null, use the specified filter policy to reduce disk reads.
 	// Many applications will benefit from passing the result of
 	// NewBloomFilterPolicy() here.
-	FilterPolicy *FilterPolicy
+	FilterPolicy FilterPolicy
 }
 
 var DefaultOptions = &Options{
